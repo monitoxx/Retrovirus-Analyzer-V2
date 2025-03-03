@@ -15,10 +15,10 @@ from basicbiofunctions import df_creator, database_sample, sequence_reader
 
 """
 Please, read the README.md and LICENSE files beforehand in my GitHub repository:
-https://github.com/monitoxx/Retrovirus-Analyzer
+https://github.com/monitoxx/Retrovirus-Analyzer_V2
 
-The following code was made by me (https://github.com/monitoxx) , with some help from Gemini Assistant and ChatGpt for 
-finding errors and helping develop the LaTeX part of my code.
+The following code was made by me (https://github.com/monitoxx) , with some help from ChatGpt for 
+finding errors and helping develop the statistical and LaTeX part of my code.
 The comments provide a really self-explanatory experience from now on.
 Reach me at my email for any doubts: ljimenezbe@unal.edu.co
 """
@@ -27,20 +27,15 @@ Reach me at my email for any doubts: ljimenezbe@unal.edu.co
 IMPORTANT NOTE: It´s very important to notice that the programm as it is will only work from the terminal/console because of the sys.argv codes.
 The parameters must be inserted in the following order:
 
-        1. file_name_1, sequences downloaded in cds format from Genbank
-        2. file_name_2, sequences downloaded in cds format from Genbank
-        3. file_name_3, sequences downloaded in cds format from Genbank
-        4. file_name_4, sequences downloaded in cds format from Genbank
-        5. file_name_5, sequences downloaded in cds format from Genbank
-        6. file_name_6, sequences downloaded in cds format from Genbank
-        7. number_of_sequences, in this case, the previous 6
-        8. gene_name, the exact gene name as in the sequence; [gene=gag]
+        1. sample_sequence, The problem sequence downloaded in cds format from Genbank
+        2. database_file_name, The database downloaded from Genbank
+        3. gene_name, The exact gene name as in the sequence; for example: [gene=gag]
 
 How it should look:
 '''
-#  python .\retrovirus_analysis_plotter.py  .\sequence.txt .\sequence (1).txt .\sequence (2).txt .\sequence (3).txt .\sequence (4).txt .\sequence (5).txt 6 [gene=gag]
+#  python .\retrovirus_analyzer_v2.py .\positive_control.txt .\vih_gag_database.fasta [gene=gag]
 '''
-From line 131-140 there is a commented section that can be used for local running on the text editor or IDLE, where the 
+From line 57-59 there is a commented section that can be used for local running on the text editor or IDLE, where the 
 information can be entered manually.
 '''
 
@@ -61,13 +56,13 @@ gene_name = '[gene=gag]'
 gene_name_database_sample = gene_name.split('=')[1][:-1]
 #print(gene_name_database_sample)
 
+
 ######Analysis by percentage of Guanine-Cytosine between the sample sequence and the first 9 sequences from the database######
 
 sequences_list = database_sample(database_file_name, gene_name_database_sample)
 sequences_list.append(sample_sequence)
 #print(sequences_list)
 number_of_sequences = len(sequences_list)-1
-
 
 df_sequences, length, df_gc_content, df_gc_content_lists, df_gc_content_lists_exploded, heatmap_data = df_creator(sequences_list, gene_name)
 
@@ -86,7 +81,6 @@ genbank_code_list__ = genbank_code_list_.strip(target_sequence)
 #print(genbank_code_list__)
 genbank_code_list = genbank_code_list__.rstrip(', ')
 #print(genbank_code_list)
-print(target_sequence)
 
 
 ######The creation of the segment of the sequence only with the fragment of the gene to do the BLASTN on#######
@@ -101,6 +95,7 @@ except AttributeError:
 sample_sequence_file = f'{sample_sequence_code}.txt'
 with open(sample_sequence_file, 'w') as out_file:
     out_file.write(f">|{sample_sequence_name}_ {gene_name}\n{sample_sequence_final}\n")
+
 
 ######BLAST ANALYSIS SECTION######
 
@@ -126,6 +121,7 @@ print('### BLASTN finished ###')
 end = timeit.timeit()
 print(f'End time {end}')
 print(f'Time taken: {end - start}')
+print(f'### Results from BLASTN analysis were included in {output_file} file ###')
 
 # Loads results from blastn to a Dataframe
 try:
@@ -158,6 +154,7 @@ except EmptyDataError:
 
 
 ######GRAPHICS#############
+
 # Graphics of density
 plt.figure(1, figsize=(11,6))
 
@@ -201,9 +198,10 @@ if mean_pident != 0:
 else:
     plt.savefig('hist_kde_pident.jpg', dpi=600)
 
-####################################### Creates the LaTeX Document#########################################
-doc = Document()
 
+####################################### Creates the LaTeX Document#########################################
+
+doc = Document()
 # Document title
 doc.preamble.append(NoEscape(r'\usepackage[headheight=20pt, top=2cm]{geometry}'))
 doc.preamble.append(Command('title', f'Analysis report for the "{gene_name_database_sample}" gene in {number_of_sequences} supposedly alike sequences from a database'))
@@ -280,4 +278,4 @@ with doc.create(Section('BLASTN Analysis Results')):
 
 # Compile the document
 doc.generate_pdf('results_report' ,compiler='pdflatex', clean_tex=False)
-print('PDF generated as results_report.pdf')
+print('### PDF generated as results_report.pdf ###')
