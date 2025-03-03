@@ -10,7 +10,7 @@ import pandas as pd
 from scipy.stats import ttest_1samp
 import sys
 
-from basicbiofunctions import df_creator, database_sample
+from basicbiofunctions import df_creator, database_sample, sequence_reader
 
 
 """
@@ -89,6 +89,18 @@ genbank_code_list = genbank_code_list__.rstrip(', ')
 print(target_sequence)
 
 
+######The creation of the segment of the sequence only with the fragment of the gene to do the BLASTN on#######
+sample_sequence_name, sample_sequence_final = sequence_reader(sample_sequence, gene_name)
+print(sample_sequence_name)
+try:
+    sample_sequence_code = sample_sequence_name.rstrip('.1')
+except AttributeError:
+    print(f'No gene {gene_name} was detected in the sample sequence')
+    exit()
+
+sample_sequence_file = f'{sample_sequence_code}.txt'
+with open(sample_sequence_file, 'w') as out_file:
+    out_file.write(f">|{sample_sequence_name}_ {gene_name}\n{sample_sequence_final}\n")
 
 ######BLAST ANALYSIS SECTION######
 
@@ -97,7 +109,7 @@ print(database_name)
 command_database = f'makeblastdb -in {database_file_name} -dbtype nucl -out {database_name}'
 os.system(command_database)
 
-query = sample_sequence
+query = sample_sequence_file
 output_file = "blastn_results.tsv"
 output_format = "6 qseqid sseqid pident mismatch qstart qend length sstart send slen stitle qseq"
 
