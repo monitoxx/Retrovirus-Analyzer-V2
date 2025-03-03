@@ -6,7 +6,7 @@
   "description": ".\\vih_gag_database.fasta",
   "number-of-letters": 9026517,
   "number-of-sequences": 6023,
-  "last-updated": "2025-03-03T12:34:00",
+  "last-updated": "2025-03-03T16:06:00",
   "number-of-volumes": 1,
   "bytes-total": 4432414,
   "bytes-to-cache": 2360501,

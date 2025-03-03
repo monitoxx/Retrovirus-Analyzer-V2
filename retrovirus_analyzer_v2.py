@@ -2,7 +2,7 @@
 import seaborn as sns
 import matplotlib.pyplot as plt
 from pandas.errors import EmptyDataError
-from pylatex import Document, Section, Subsection, Figure, Command, Enumerate
+from pylatex import Document, Section, Subsection, Figure, Command
 from pylatex.utils import NoEscape
 import os
 import timeit
@@ -207,6 +207,7 @@ doc.preamble.append(NoEscape(r'\usepackage[headheight=20pt, top=2cm]{geometry}')
 doc.preamble.append(Command('title', f'Analysis report for the "{gene_name_database_sample}" gene in {number_of_sequences} supposedly alike sequences from a database'))
 doc.preamble.append(Command('author', 'Luis Jimenez'))
 doc.preamble.append(Command('date', NoEscape(r'\today')))
+
 doc.append(NoEscape(r'\maketitle'))
 
 # Section
@@ -275,6 +276,7 @@ with doc.create(Section('BLASTN Analysis Results')):
                    f'a complete absence of detectable sequence similarity. This suggests that the target sequence '
                    f'does not share significant homology with any sequences currently deposited in the database.')
 
+    doc.append(f"PDF generated automatically by: https://github.com/monitoxx/Retrovirus-Analyzer-V2")
 
 # Compile the document
 doc.generate_pdf('results_report' ,compiler='pdflatex', clean_tex=False)
